@@ -1,0 +1,6 @@
+from typing import Iterator, Protocol
+
+
+class LLMProvider(Protocol):
+    def generate(self, prompt: str) -> str: ...
+    def stream(self, prompt: str) -> Iterator[str]: ...
