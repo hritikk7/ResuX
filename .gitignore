@@ -49,3 +49,7 @@ venv/
 **/*.pyc
 .pytest_cache/
 
+# Agent skills
+.agents/skills/
+skills-lock.json
+
