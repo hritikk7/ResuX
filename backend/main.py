@@ -13,7 +13,7 @@ from models.analysis import AnalysisResult, ScoreBreakdown, ValidatedBulletRewri
 from providers.embeddings.voyage import VoyageEmbeddingProvider
 from providers.llm import get_llm_provider
 from services.similarity_service import cosine_similarity
-from services.skills_service import extract_skills, match_skills, has_exact_match
+from services.skills_service import match_skills_with_llm
 from services.experience_service import (
     extract_required_years,
     extract_candidate_years,
@@ -49,6 +49,35 @@ def health_check():
 def sse(event_type: str, payload) -> str:
     """Format one SSE message: a single JSON line carrying {type, payload}."""
     return f"data: {json.dumps({'type': event_type, 'payload': payload})}\n\n"
+
+
+async def _match_skills(
+    result, job_description: str
+) -> tuple[list[str], list[str], list[str], str]:
+    """Run skill matching via the LLM. Returns (skills, matched, missing, status).
+
+    `status` is "ok" or "failed" — the caller (analyze_stream) uses it to yield its
+    own status/error events and to decide how the score degrades (Option B): a
+    failure must be distinguishable from "the JD genuinely has zero skills", so this
+    never yields SSE events itself and never fakes an empty-but-successful result.
+    """
+    try:
+        llm_provider = get_llm_provider()
+    except Exception:
+        return [], [], [], "failed"
+
+    skill_match = await match_skills_with_llm(
+        result.raw_text, job_description, llm_provider
+    )
+    if skill_match is None:
+        return [], [], [], "failed"
+
+    return (
+        skill_match.job_skills,
+        skill_match.match_skills,
+        skill_match.missing_skills,
+        "ok",
+    )
 
 
 async def _rewrite_bullet(
@@ -98,15 +127,9 @@ async def analyze_stream(
         return
 
     yield sse("status", "Generating Embeddings...")
-    skills = extract_skills(job_description)
-    exact_matched = [s for s in skills if has_exact_match(s, result.raw_text)]
-    needs_semantic_check = [s for s in skills if s not in exact_matched]
-
-    # Batch all embedding calls into a single API request to stay within 3 RPM limits
-    texts_to_embed = [result.raw_text, job_description] + needs_semantic_check
     try:
         embeddings = await asyncio.to_thread(
-            embedding_provider.embed_batch, texts_to_embed
+            embedding_provider.embed_batch, [result.raw_text, job_description]
         )
     except Exception as e:
         yield sse("error", {"error": "embedding_provider_error", "message": str(e)})
@@ -114,21 +137,32 @@ async def analyze_stream(
 
     resume_embedding = embeddings[0]
     jd_embedding = embeddings[1]
-    skill_embeddings = embeddings[2:]
 
     similarity_score = cosine_similarity(resume_embedding, jd_embedding)
 
-    yield sse("status", "Finding Missing Skills...")
-    semantic_matched, missing_skills = match_skills(
-        needs_semantic_check, skill_embeddings, resume_embedding
+    yield sse("status", "Matching Skills...")
+    skills, matched_skills, missing_skills, skill_status = await _match_skills(
+        result, job_description
     )
-    matched_skills = exact_matched + semantic_matched
+    if skill_status == "failed":
+        yield sse(
+            "status", "Skill matching unavailable, continuing without it..."
+        )
 
+    # Interim stopgap: a failed match falls back to 0.0 rather than the old `1.0`
+    # (empty `skills` list read as "nothing required, perfect score") — rewarding
+    # a failure was wrong. This is still not the real fix (task #6): keyword_score
+    # and match_score should become nullable so a failed match is visibly flagged
+    # in result_partial instead of silently folded into a fabricated number.
+    keyword_score = (
+        len(matched_skills) / len(skills)
+        if skills
+        else (1.0 if skill_status == "ok" else 0.0)
+    )
     required_years = extract_required_years(job_description)
     candidate_years = extract_candidate_years(result.raw_text)
     experience_score = compute_experience_score(required_years, candidate_years)
 
-    keyword_score = len(matched_skills) / len(skills) if skills else 1.0
     match_score = 0.4 * keyword_score + 0.4 * similarity_score + 0.2 * experience_score
 
     score = ScoreBreakdown(
