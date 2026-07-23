@@ -37,3 +37,30 @@ already present in the original bullet.
 - Respond with ONLY valid JSON, no markdown fences, no commentary, in exactly this shape:
 {{"rewritten": "<the rewritten bullet text>"}}
 """
+
+
+def build_skill_matching_prompt(resume_text: str, job_description: str):
+    return f"""
+    Job Description:
+    \"\"\"
+    {job_description}
+    \"\"\"
+    Resume:
+    \"\"\"
+    {resume_text}
+    \"\"\"
+    Instructions:
+    1. Identify all key technical skills, tools, frameworks, concepts, and soft skills required in the Job Description.
+    2. Determine which of those identified job skills are present or demonstrated in the Resume.
+    3. Determine which of those identified job skills are missing from the Resume.
+    Rules:
+    - Ensure every skill in `match_skills` and `missing_skills` is present in `job_skills`.
+    - Do not make assumptions; if a skill is not clearly mentioned or demonstrated in the resume, classify it as missing.
+    - Respond with ONLY valid JSON. Do not include markdown formatting (like ```json), code blocks, or any introductory/concluding text.
+    Output Schema:
+    {{
+      "job_skills": ["list", "of", "all", "extracted", "job", "skills"],
+      "match_skills": ["list", "of", "skills", "found", "in", "resume"],
+      "missing_skills": ["list", "of", "skills", "not", "found", "in", "resume"]
+    }}
+    """
