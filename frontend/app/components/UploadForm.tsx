@@ -2,6 +2,10 @@
 
 import { FormEvent, useRef, useState } from "react";
 import { ACCEPTED_FILE_TYPES, MAX_FILE_BYTES } from "@/lib/analyze";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface UploadFormProps {
   disabled: boolean;
@@ -48,54 +52,40 @@ export default function UploadForm({ disabled, onSubmit }: UploadFormProps) {
   const canSubmit = !disabled && !!file && jobDescription.trim().length > 0;
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <label htmlFor="resume" className="text-sm font-medium text-foreground">
-          Résumé
-        </label>
-        <input
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="resume">Résumé</Label>
+        <Input
           ref={fileInputRef}
           id="resume"
           type="file"
           accept=".pdf,.txt,text/plain,application/pdf"
           onChange={handleFileChange}
           disabled={disabled}
-          className="text-sm text-muted file:mr-4 file:rounded-md file:border file:border-border
-            file:bg-transparent file:px-3 file:py-1.5 file:text-sm file:font-medium
-            file:text-foreground hover:file:bg-surface disabled:opacity-50"
         />
-        <p className="text-xs text-muted">PDF or plain text, up to 5 MB.</p>
-        {fileError && <p className="text-xs text-red-500">{fileError}</p>}
+        <p className="text-xs text-muted-foreground">PDF or plain text, up to 5 MB.</p>
+        {fileError && <p className="text-xs text-danger">{fileError}</p>}
         {file && !fileError && (
-          <p className="text-xs text-muted">Selected: {file.name}</p>
+          <p className="font-mono text-xs text-muted-foreground">Selected: {file.name}</p>
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor="job-description" className="text-sm font-medium text-foreground">
-          Job description
-        </label>
-        <textarea
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="job-description">Job description</Label>
+        <Textarea
           id="job-description"
           value={jobDescription}
           onChange={(e) => setJobDescription(e.target.value)}
           disabled={disabled}
           rows={8}
           placeholder="Paste the job description here…"
-          className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm
-            text-foreground placeholder:text-muted focus:border-accent focus:outline-none
-            disabled:opacity-50 resize-y"
+          className="resize-y"
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={!canSubmit}
-        className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-white
-          transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={!canSubmit} className="self-start">
         {disabled ? "Analyzing…" : "Analyze"}
-      </button>
+      </Button>
     </form>
   );
 }

@@ -1,8 +1,6 @@
 import re
 from data.action_verbs import ACTION_VERBS
-from data.skills import SKILL_DICTIONARY
 from models.analysis import WeakBullet
-from services.skills_service import has_exact_match
 
 MIN_WORD_COUNT = 6
 DEFAULT_MAX_WEAK_BULLETS = 3
@@ -22,10 +20,6 @@ def _has_action_verb(bullet: str) -> bool:
     return words[0].lower() in ACTION_VERBS
 
 
-def _has_tech_mention(bullet: str) -> bool:
-    return any(has_exact_match(skill, bullet) for skill in SKILL_DICTIONARY)
-
-
 def _is_too_short(bullet: str) -> bool:
     return len(WORD_PATTERN.findall(bullet)) < MIN_WORD_COUNT
 
@@ -37,8 +31,6 @@ def _weakness_reasons(bullet: str) -> list[str]:
         reasons.append("no_metrics")
     if not _has_action_verb(bullet):
         reasons.append("no_action_verb")
-    if not _has_tech_mention(bullet):
-        reasons.append("no_tech_mentioned")
     if _is_too_short(bullet):
         reasons.append("too_short")
     return reasons
