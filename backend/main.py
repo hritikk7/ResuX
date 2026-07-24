@@ -22,11 +22,18 @@ from services.experience_service import (
 from services.weak_bullet_service import select_weak_bullets
 from services.prompt_builder import build_rewrite_prompt
 from services.validator import validate_rewrite
+import logging
 
 load_dotenv()
 
 app = FastAPI(title="Resume Analysis")
 
+# Configure the global logging settings
+logging.basicConfig(
+    level=logging.INFO,  # Use logging.DEBUG to see detailed debug logs
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[logging.StreamHandler()],  # Output to the console/stdout
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -88,17 +95,23 @@ async def _rewrite_bullet(
     A guardrail failure (is_valid=False) is returned as-is, not retried. Returns None
     only if generation itself keeps failing (provider error) after all attempts.
     """
-    prompt = build_rewrite_prompt(weak_bullet, job_description)
-    validated = None
-    for _ in range(MAX_GENERATE_ATTEMPTS):
-        try:
-            raw = await asyncio.to_thread(llm_provider.generate, prompt)
-        except Exception:
-            continue
-        validated = validate_rewrite(weak_bullet.text, raw, resume_text)
-        if validated is not None:
-            break
-    return validated
+    # prompt = build_rewrite_prompt(weak_bullet, job_description)
+    # validated = None
+    # for _ in range(MAX_GENERATE_ATTEMPTS):
+    #     try:
+    #         raw = await asyncio.to_thread(llm_provider.generate, prompt)
+    #     except Exception:
+    #         continue
+    #     validated = validate_rewrite(weak_bullet.text, raw, resume_text)
+    #     if validated is not None:
+    #         break
+    # return validated
+    return ValidatedBulletRewrite(
+        original=weak_bullet.text,
+        rewritten=f"[MOCK REWRITE] Improved: {weak_bullet.text} with simulated metrics.",
+        is_valid=True,
+        invalid_terms=[],
+    )
 
 
 async def analyze_stream(
@@ -145,9 +158,7 @@ async def analyze_stream(
         result, job_description
     )
     if skill_status == "failed":
-        yield sse(
-            "status", "Skill matching unavailable, continuing without it..."
-        )
+        yield sse("status", "Skill matching unavailable, continuing without it...")
 
     # Interim stopgap: a failed match falls back to 0.0 rather than the old `1.0`
     # (empty `skills` list read as "nothing required, perfect score") — rewarding
