@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import AsyncIterator, Optional
 
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
@@ -14,6 +14,7 @@ from providers.embeddings.voyage import VoyageEmbeddingProvider
 from providers.llm import get_llm_provider
 from services.similarity_service import cosine_similarity
 from services.skills_service import match_skills_with_llm
+from api.deps import get_current_user
 from services.experience_service import (
     extract_required_years,
     extract_candidate_years,
@@ -115,7 +116,7 @@ async def _rewrite_bullet(
 
 
 async def analyze_stream(
-    resume: UploadFile, job_description: str
+    resume: UploadFile, job_description: str, user_id: Optional[str] = None
 ) -> AsyncIterator[str]:
     """Orchestrate the full analysis: score path first, then the LLM bullet-rewrite path.
 
@@ -242,10 +243,12 @@ async def analyze_stream(
 
 @app.post("/analyze")
 async def analyze_resume(
-    resume: UploadFile = File(...), job_description: str = Form(...)
+    resume: UploadFile = File(...),
+    job_description: str = Form(...),
+    user_id: str = Depends(get_current_user),
 ):
     return StreamingResponse(
-        analyze_stream(resume, job_description), media_type="text/event-stream"
+        analyze_stream(resume, job_description, user_id=user_id), media_type="text/event-stream"
     )
 
 

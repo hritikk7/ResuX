@@ -5,6 +5,7 @@ import type {
   ResultPartial,
   SSEEvent,
 } from "./types";
+import { createClient } from "./supabase/client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -32,6 +33,15 @@ export async function analyzeResume(
   handlers: AnalyzeHandlers,
   signal?: AbortSignal
 ): Promise<void> {
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const formData = new FormData();
   formData.append("resume", file);
   formData.append("job_description", jobDescription);
@@ -40,6 +50,7 @@ export async function analyzeResume(
   try {
     response = await fetch(`${API_URL}/analyze`, {
       method: "POST",
+      headers,
       body: formData,
       signal,
     });

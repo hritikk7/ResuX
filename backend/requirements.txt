@@ -11,3 +11,4 @@ groq==0.13.0
 google-genai==0.3.0
 openai==1.57.0
 spacy==3.7.5  # pinned: spaCy 3.8.x has no Python 3.9 wheel
+PyJWT==2.10.1
