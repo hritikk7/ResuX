@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://resux.vercel.app"),
   title: "Resume Analyzer",
   description: "Compare a résumé against a job description and get a match score, missing skills, and rewritten bullets.",
 };
