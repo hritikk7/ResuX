@@ -53,3 +53,6 @@ venv/
 .agents/skills/
 skills-lock.json
 
+# Docs
+/docs/
+

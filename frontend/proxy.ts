@@ -35,11 +35,13 @@ export async function proxy(request: NextRequest) {
     // 1. Capture the authenticated user
     const { data: { user } } = await supabase.auth.getUser()
 
-    // 2. Define public routes that don't require being logged in
+    // 2. Define public routes that don't require being logged in.
+    //    '/' is the marketing landing page — exact match only, so the
+    //    startsWith check below can't accidentally make every route public.
     const publicRoutes = ['/login', '/auth/callback']
-    const isPublicRoute = publicRoutes.some(route =>
-        request.nextUrl.pathname.startsWith(route)
-    )
+    const isPublicRoute =
+        request.nextUrl.pathname === '/' ||
+        publicRoutes.some(route => request.nextUrl.pathname.startsWith(route))
 
     // 3. If no user is logged in and they are trying to access a protected page, redirect to /login
     if (!user && !isPublicRoute) {
