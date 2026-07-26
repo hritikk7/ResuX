@@ -60,6 +60,29 @@ def save_analysis(
     return response.data[0]["id"]
 
 
+def get_analysis_by_id(user_id: str, analysis_id: str) -> Optional[dict[str, Any]]:
+    """Return one analysis owned by this user, or None.
+
+    Filters on user_id as well as id — deliberately, not defensively. RLS is off
+    and this module holds the service role key, so that second `.eq` is the only
+    thing stopping one user from reading another's analysis by id. The caller
+    turns None into a 404 (never a 403, which would confirm the row exists).
+    """
+    response = (
+        _get_client()
+        .table(TABLE)
+        .select(
+            "id, resume_filename, job_description, score, "
+            "matched_skills, missing_skills, bullet_rewrites, created_at"
+        )
+        .eq("id", analysis_id)
+        .eq("user_id", user_id)
+        .limit(1)
+        .execute()
+    )
+    return response.data[0] if response.data else None
+
+
 def get_analyses_for_user(user_id: str, limit: int = 50) -> list[dict[str, Any]]:
     """Return a user's past analyses, newest first.
 

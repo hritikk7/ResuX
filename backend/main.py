@@ -1,5 +1,6 @@
 import asyncio
 import json
+import uuid
 from typing import AsyncIterator, Optional
 
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
@@ -15,7 +16,11 @@ from providers.llm import get_llm_provider
 from services.similarity_service import cosine_similarity
 from services.skills_service import match_skills_with_llm
 from api.deps import get_current_user
-from db.analyses_repository import get_analyses_for_user, save_analysis
+from db.analyses_repository import (
+    get_analyses_for_user,
+    get_analysis_by_id,
+    save_analysis,
+)
 from services.experience_service import (
     extract_required_years,
     extract_candidate_years,
@@ -274,7 +279,8 @@ async def analyze_resume(
     user_id: str = Depends(get_current_user),
 ):
     return StreamingResponse(
-        analyze_stream(resume, job_description, user_id=user_id), media_type="text/event-stream"
+        analyze_stream(resume, job_description, user_id=user_id),
+        media_type="text/event-stream",
     )
 
 
@@ -286,6 +292,33 @@ async def list_analyses(user_id: str = Depends(get_current_user)):
     except Exception:
         logging.exception("Failed to list analyses for user %s", user_id)
         raise HTTPException(status_code=503, detail="Could not load analysis history")
+
+
+@app.get("/analyses/{analysis_id}")
+async def get_analysis(analysis_id: str, user_id: str = Depends(get_current_user)):
+    """One saved analysis, if it belongs to the caller.
+
+    A row that exists but belongs to someone else is reported as 404, not 403 —
+    a 403 would confirm the id is real, which is exactly what an attacker probing
+    ids wants to learn.
+    """
+    try:
+        # Postgres raises on malformed uuid input, which would surface as a 503
+        # for what is really "no such analysis" — and would make a genuine DB
+        # outage indistinguishable from a bad URL. Reject the shape first.
+        uuid.UUID(analysis_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+
+    try:
+        row = await asyncio.to_thread(get_analysis_by_id, user_id, analysis_id)
+    except Exception:
+        logging.exception("Failed to load analysis %s for user %s", analysis_id, user_id)
+        raise HTTPException(status_code=503, detail="Could not load analysis")
+
+    if row is None:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    return row
 
 
 if __name__ == "__main__":

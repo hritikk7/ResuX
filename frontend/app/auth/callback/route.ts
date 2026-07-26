@@ -11,5 +11,5 @@ export async function GET(request: NextRequest) {
             return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`);
         }
     }
-    return NextResponse.redirect(`${origin}/app`);
+    return NextResponse.redirect(`${origin}/dash`);
 }

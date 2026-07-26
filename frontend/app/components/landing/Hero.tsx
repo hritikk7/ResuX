@@ -38,7 +38,7 @@ export default function Hero() {
         <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
           <Link
             id="hero-cta-primary"
-            href="/app"
+            href="/dash"
             className="group inline-flex h-11 items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-6 text-sm font-medium text-white shadow-[0_0_32px_-6px_rgba(99,102,241,0.6)] transition-shadow hover:shadow-[0_0_44px_-6px_rgba(99,102,241,0.8)]"
           >
             Analyze Your Resume

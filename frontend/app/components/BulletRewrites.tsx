@@ -9,7 +9,7 @@ import SectionCard from "@/app/components/SectionCard";
 
 interface BulletRewritesProps {
   bullets: BulletResult[];
-  /** 1-based index of the bullet currently being rewritten, if any (see app/(app)/page.tsx). */
+  /** 1-based index of the bullet currently being rewritten, if any (see app/dash/page.tsx). */
   pendingIndex?: number | null;
 }
 

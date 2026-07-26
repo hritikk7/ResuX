@@ -1,5 +1,5 @@
-import { FileText, History, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import SidebarNav from "@/app/components/SidebarNav";
 import SignOutButton from "@/app/components/SignOutButton";
 
 export default async function Sidebar() {
@@ -13,30 +13,7 @@ export default async function Sidebar() {
       <div className="flex flex-col gap-6 px-4 py-5">
         <span className="text-sm font-medium text-foreground">Resume Analyzer</span>
 
-        <nav className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[13px] text-foreground">
-            <FileText className="size-3.5" aria-hidden />
-            Analyzer
-          </div>
-
-          {/* Not built yet — see docs/design.md "Sidebar timing". Shown as a
-              placeholder so the nav shape is visible ahead of these shipping,
-              not because they're reachable. */}
-          <div
-            className="flex cursor-not-allowed items-center gap-2 px-2.5 py-1.5 text-[13px] text-muted-foreground/50"
-            title="Coming soon"
-          >
-            <History className="size-3.5" aria-hidden />
-            History
-          </div>
-          <div
-            className="flex cursor-not-allowed items-center gap-2 px-2.5 py-1.5 text-[13px] text-muted-foreground/50"
-            title="Coming soon"
-          >
-            <Mail className="size-3.5" aria-hidden />
-            Cover letter
-          </div>
-        </nav>
+        <SidebarNav />
       </div>
 
       {user && (

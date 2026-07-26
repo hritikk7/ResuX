@@ -1,19 +1,9 @@
 import type { ScoreBreakdown } from "@/lib/types";
+import { qualitativeLabel, toPercent } from "@/lib/score";
 import SectionCard from "@/app/components/SectionCard";
 
 interface ScoreCardProps {
   score: ScoreBreakdown;
-}
-
-function toPercent(value: number): number {
-  return Math.round(value * 100);
-}
-
-function qualitativeLabel(matchPercent: number): string {
-  if (matchPercent >= 80) return "Strong alignment";
-  if (matchPercent >= 60) return "Good alignment";
-  if (matchPercent >= 40) return "Moderate alignment";
-  return "Limited alignment";
 }
 
 export default function ScoreCard({ score }: ScoreCardProps) {

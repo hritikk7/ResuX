@@ -18,7 +18,7 @@ export default function CTASection() {
         </p>
         <Link
           id="cta-bottom"
-          href="/app"
+          href="/dash"
           className="group mt-9 inline-flex h-12 items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-8 text-[15px] font-medium text-white shadow-[0_0_40px_-8px_rgba(99,102,241,0.7)] transition-shadow hover:shadow-[0_0_56px_-8px_rgba(99,102,241,0.9)]"
         >
           Analyze Your Resume
