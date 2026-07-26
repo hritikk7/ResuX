@@ -8,32 +8,33 @@
  */
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Light theme — zinc ramp (not neutral gray), matching the landing page's
+     text/surface language. Card sits a shade whiter than the page background,
+     mirroring the dark theme's "card lighter than page" elevation cue. */
+  --background: oklch(0.985 0 0); /* zinc-50 */
+  --foreground: oklch(0.141 0.005 285.823); /* zinc-950 */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
 
-  /* Primary action — indigo, per docs/design.md color spec. Used sparingly. */
+  /* Primary action — indigo. Landing page uses an indigo→violet gradient for
+     CTAs specifically; this token is the solid fallback used elsewhere. */
   --primary: oklch(0.511 0.262 276.966);
   --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.967 0.001 286.375); /* zinc-100 */
+  --secondary-foreground: oklch(0.21 0.006 285.885); /* zinc-900 */
 
-  /* Subtle surface + muted text — design.md: "subtle elevation, not cards". */
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.492 0 0);
+  --muted: oklch(0.967 0.001 286.375); /* zinc-100 */
+  --muted-foreground: oklch(0.442 0.017 285.786); /* zinc-600 */
 
-  /* Neutral hover/selected background for shadcn components (not the indigo
-     primary — keeps indigo appearing sparingly, per design.md). */
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --accent: oklch(0.967 0.001 286.375); /* zinc-100 */
+  --accent-foreground: oklch(0.21 0.006 285.885); /* zinc-900 */
 
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: oklch(0.92 0.004 286.32); /* zinc-200 */
+  --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.708 0 0);
 
   /* Semantic status colors — docs/design.md: Matched=green, Partial=amber,
@@ -83,24 +84,26 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
+    /* Dark theme — matches the landing page's near-black canvas exactly
+       (#09090b) rather than an oklch approximation, plus the zinc text ramp. */
+    --background: #09090b;
+    --foreground: oklch(0.985 0 0); /* zinc-50 */
+    --card: #0c0c0f;
     --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
+    --popover: #0c0c0f;
     --popover-foreground: oklch(0.985 0 0);
 
     /* Lighter indigo for contrast against a dark background. */
     --primary: oklch(0.673 0.182 276.935);
     --primary-foreground: oklch(0.145 0 0);
 
-    --secondary: oklch(0.269 0 0);
+    --secondary: oklch(0.274 0.006 286.033); /* zinc-800 */
     --secondary-foreground: oklch(0.985 0 0);
 
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
+    --muted: oklch(0.274 0.006 286.033); /* zinc-800 */
+    --muted-foreground: oklch(0.705 0.015 286.067); /* zinc-400 */
 
-    --accent: oklch(0.269 0 0);
+    --accent: oklch(0.274 0.006 286.033); /* zinc-800 */
     --accent-foreground: oklch(0.985 0 0);
 
     --destructive: oklch(0.704 0.191 22.216);

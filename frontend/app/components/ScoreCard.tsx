@@ -1,4 +1,5 @@
 import type { ScoreBreakdown } from "@/lib/types";
+import SectionCard from "@/app/components/SectionCard";
 
 interface ScoreCardProps {
   score: ScoreBreakdown;
@@ -28,9 +29,9 @@ export default function ScoreCard({ score }: ScoreCardProps) {
   const matchPercent = toPercent(match_score);
 
   return (
-    <section className="flex flex-col gap-4 border-t border-border pt-8">
+    <SectionCard eyebrow="Score">
       <div className="flex items-baseline gap-3">
-        <p className="font-mono text-4xl font-semibold tracking-tight text-foreground">
+        <p className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text font-mono text-4xl font-semibold tracking-tight text-transparent">
           {matchPercent}%
         </p>
         <div className="flex flex-col">
@@ -59,6 +60,6 @@ export default function ScoreCard({ score }: ScoreCardProps) {
           ? `Role expects ~${required_years} yr${required_years === 1 ? "" : "s"} experience · résumé shows ~${candidate_years} yr${candidate_years === 1 ? "" : "s"}.`
           : `No experience requirement detected in the job description · résumé shows ~${candidate_years} yr${candidate_years === 1 ? "" : "s"}.`}
       </p>
-    </section>
+    </SectionCard>
   );
 }
