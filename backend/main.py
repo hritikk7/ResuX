@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import AsyncIterator, Optional
 
-from fastapi import FastAPI, UploadFile, File, Form, Depends
+from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
@@ -15,6 +15,7 @@ from providers.llm import get_llm_provider
 from services.similarity_service import cosine_similarity
 from services.skills_service import match_skills_with_llm
 from api.deps import get_current_user
+from db.analyses_repository import get_analyses_for_user, save_analysis
 from services.experience_service import (
     extract_required_years,
     extract_candidate_years,
@@ -237,7 +238,32 @@ async def analyze_stream(
         score=score,
         bullet_rewrites=bullet_rewrites,
     )
-    yield sse("result_final", analysis_result.model_dump())
+
+    # Persist BEFORE yielding result_final, not after. Code following a `yield`
+    # in an async generator only runs if the ASGI server pulls the next item —
+    # if the client has disconnected it closes the generator instead, and the
+    # write silently never happens. Which is exactly the case we most want saved:
+    # a long analysis the user navigated away from. The cost is the round trip's
+    # latency on the final event, which is noise next to the LLM calls above.
+    persisted = False
+    if user_id is not None:
+        try:
+            await asyncio.to_thread(
+                save_analysis,
+                user_id,
+                job_description,
+                resume.filename,
+                analysis_result,
+            )
+            persisted = True
+        except Exception:
+            # Never fatal (PRD V2 success criteria): the result is complete and
+            # already paid for, so a DB failure must not throw it away.
+            logging.exception("Failed to persist analysis for user %s", user_id)
+
+    final_payload = analysis_result.model_dump()
+    final_payload["persisted"] = persisted
+    yield sse("result_final", final_payload)
     yield sse("status", "Done")
 
 
@@ -250,6 +276,16 @@ async def analyze_resume(
     return StreamingResponse(
         analyze_stream(resume, job_description, user_id=user_id), media_type="text/event-stream"
     )
+
+
+@app.get("/analyses")
+async def list_analyses(user_id: str = Depends(get_current_user)):
+    """History: the authenticated user's past analyses, newest first."""
+    try:
+        return await asyncio.to_thread(get_analyses_for_user, user_id)
+    except Exception:
+        logging.exception("Failed to list analyses for user %s", user_id)
+        raise HTTPException(status_code=503, detail="Could not load analysis history")
 
 
 if __name__ == "__main__":
