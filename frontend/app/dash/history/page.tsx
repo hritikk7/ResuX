@@ -5,6 +5,7 @@ import Link from "next/link";
 import { fetchAnalyses } from "@/lib/analyses";
 import type { AnalysisHistoryItem } from "@/lib/types";
 import HistoryList from "@/app/components/HistoryList";
+import SectionCard from "@/app/components/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -52,8 +53,10 @@ export default function HistoryPage() {
         </p>
       </header>
 
-      <section className="flex flex-col gap-3 border-t border-border pt-8">
-        {phase === "loading" && (
+      {/* No section wrapper: HistoryList brings its own SectionCard, and the
+          other states are single blocks that don't need one. */}
+      {phase === "loading" && (
+        <SectionCard eyebrow="History">
           <div className="flex flex-col gap-4" aria-busy="true">
             {[0, 1, 2].map((i) => (
               <div key={i} className="flex flex-col gap-2">
@@ -62,31 +65,31 @@ export default function HistoryPage() {
               </div>
             ))}
           </div>
-        )}
+        </SectionCard>
+      )}
 
-        {phase === "error" && (
-          <div className="flex flex-col items-start gap-3">
-            <p className="text-[13px] text-danger">{error}</p>
-            <Button variant="outline" size="sm" onClick={retry}>
-              Retry
-            </Button>
-          </div>
-        )}
+      {phase === "error" && (
+        <div className="flex flex-col items-start gap-3">
+          <p className="text-[13px] text-danger">{error}</p>
+          <Button variant="outline" size="sm" onClick={retry}>
+            Retry
+          </Button>
+        </div>
+      )}
 
-        {phase === "ready" && items.length === 0 && (
-          <div className="flex flex-col items-start gap-2">
-            <p className="text-[13px] text-muted-foreground">No analyses yet.</p>
-            <Link
-              href="/dash"
-              className="text-[13px] text-primary transition-colors duration-150 hover:underline"
-            >
-              Run your first analysis
-            </Link>
-          </div>
-        )}
+      {phase === "ready" && items.length === 0 && (
+        <div className="flex flex-col items-start gap-2">
+          <p className="text-[13px] text-muted-foreground">No analyses yet.</p>
+          <Link
+            href="/dash"
+            className="text-[13px] text-primary transition-colors duration-150 hover:underline"
+          >
+            Run your first analysis
+          </Link>
+        </div>
+      )}
 
-        {phase === "ready" && items.length > 0 && <HistoryList items={items} />}
-      </section>
+      {phase === "ready" && items.length > 0 && <HistoryList items={items} />}
     </main>
   );
 }

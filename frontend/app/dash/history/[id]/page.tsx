@@ -9,6 +9,7 @@ import type { AnalysisDetail } from "@/lib/types";
 import ScoreCard from "@/app/components/ScoreCard";
 import SkillsPanel from "@/app/components/SkillsPanel";
 import BulletRewrites from "@/app/components/BulletRewrites";
+import SectionCard from "@/app/components/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -118,19 +119,21 @@ export default function AnalysisDetailPage() {
 
           <BulletRewrites bullets={analysis.bullet_rewrites} />
 
-          {/* Native <details>: no accordion exists in components/ui, this needs
-              no state, and it is keyboard- and screen-reader-accessible as-is. */}
-          <details className="group flex flex-col gap-3 border-t border-border pt-8">
-            <summary className="w-fit cursor-pointer list-none text-sm font-medium text-foreground transition-colors duration-150 hover:text-muted-foreground">
-              <span className="inline-block transition-transform duration-150 group-open:rotate-90">
-                ›
-              </span>{" "}
-              Job description
-            </summary>
-            <p className="mt-3 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
-              {analysis.job_description}
-            </p>
-          </details>
+          <SectionCard eyebrow="Job description">
+            {/* Native <details>: no accordion exists in components/ui, this needs
+                no state, and it is keyboard- and screen-reader-accessible as-is. */}
+            <details className="group">
+              <summary className="w-fit cursor-pointer list-none text-[13px] text-foreground transition-colors duration-150 hover:text-muted-foreground">
+                <span className="inline-block transition-transform duration-150 group-open:rotate-90">
+                  ›
+                </span>{" "}
+                Show
+              </summary>
+              <p className="mt-3 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
+                {analysis.job_description}
+              </p>
+            </details>
+          </SectionCard>
         </>
       )}
     </main>
