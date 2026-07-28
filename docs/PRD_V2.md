@@ -27,6 +27,14 @@ built this round.
   Cover Letter Generator.** Moved out of V1's Out of Scope list into V2 scope,
   described in full below. LinkedIn Optimizer remains deferred — not part of this
   iteration.
+- **2026-07-26 — Persistence: added analysis detail endpoint + route.** The history
+  spec below scopes the frontend as a list only. A list whose rows can't be opened
+  is half the feature, so `GET /analyses/{id}` (auth'd) and `/dash/history/[id]`
+  were added: click a row, see the saved analysis. No schema change — the table
+  already stores everything the analysis page renders. **Access control note:** RLS
+  is not enabled on `analyses` and the backend uses the service role key, so the
+  repository query filters on `user_id` as well as `id`, and a row that exists but
+  belongs to another user is reported as 404, never 403.
 - **2026-07-20 — Refactor: shared LLM-task runner, auth dependency, repository
   layer.** Adding a third LLM-consuming feature (cover letters, alongside skill
   matching and bullet rewriting) makes it worth extracting the shared

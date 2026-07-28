@@ -1,6 +1,6 @@
 import Sidebar from "@/app/components/Sidebar";
 
-export default function AppGroupLayout({
+export default function DashLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -8,12 +8,9 @@ export default function AppGroupLayout({
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-y-auto">
-        <header className="border-b border-border px-6 py-3">
-          <span className="text-sm font-medium text-foreground">Analyzer</span>
-        </header>
-        {children}
-      </div>
+      {/* Each page owns its own title (docs/design.md "consistent page headers"),
+          so the shell deliberately has no header bar of its own. */}
+      <div className="flex flex-1 flex-col overflow-y-auto">{children}</div>
     </div>
   );
 }
