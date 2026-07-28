@@ -40,7 +40,7 @@ export default function LandingNav() {
 
         <Link
           id="nav-cta"
-          href="/app"
+          href="/dash"
           className="group inline-flex h-8 items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-4 text-[13px] font-medium text-white shadow-[0_0_20px_-4px_rgba(99,102,241,0.5)] transition-shadow hover:shadow-[0_0_28px_-4px_rgba(99,102,241,0.7)]"
         >
           Analyze Your Resume
