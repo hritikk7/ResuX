@@ -77,9 +77,8 @@ export default function UploadForm({ disabled, onSubmit }: UploadFormProps) {
           value={jobDescription}
           onChange={(e) => setJobDescription(e.target.value)}
           disabled={disabled}
-          rows={8}
           placeholder="Paste the job description here…"
-          className="resize-y"
+          className="[field-sizing:fixed] h-[200px] resize-none overflow-y-auto"
         />
       </div>
 

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import type { BulletResult } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import SectionCard from "@/app/components/SectionCard";
 
 interface BulletRewritesProps {
   bullets: BulletResult[];
@@ -21,8 +22,7 @@ export default function BulletRewrites({ bullets, pendingIndex }: BulletRewrites
   if (bullets.length === 0 && !pendingIndex) return null;
 
   return (
-    <section className="flex flex-col gap-5 border-t border-border pt-8">
-      <p className="text-sm font-medium text-foreground">Resume suggestions</p>
+    <SectionCard eyebrow="Resume suggestions">
       <ul className="flex flex-col gap-5">
         {bullets.map((bullet, i) => {
           // Guardrail rejection (introduced unverifiable content) vs. an
@@ -76,6 +76,6 @@ export default function BulletRewrites({ bullets, pendingIndex }: BulletRewrites
           </li>
         )}
       </ul>
-    </section>
+    </SectionCard>
   );
 }
