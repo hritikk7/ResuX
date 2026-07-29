@@ -1,0 +1,18 @@
+ACTION_VERBS: set[str] = {
+    "achieved", "accelerated", "administered", "advised", "analyzed", "architected",
+    "automated", "authored", "boosted", "built", "chaired", "coded", "collaborated",
+    "conducted", "configured", "consolidated", "constructed", "coordinated", "created",
+    "cut", "decreased", "delivered", "deployed", "designed", "developed", "devised",
+    "directed", "documented", "drove", "engineered", "enhanced", "established",
+    "evaluated", "executed", "expanded", "expedited", "facilitated", "founded",
+    "generated", "grew", "guided", "headed", "implemented", "improved", "increased",
+    "initiated", "instituted", "integrated", "introduced", "invented", "launched",
+    "led", "leveraged", "maintained", "managed", "mentored", "migrated", "minimized",
+    "modernized", "monitored", "negotiated", "operated", "optimized", "orchestrated",
+    "organized", "overhauled", "oversaw", "owned", "partnered", "pioneered", "planned",
+    "prepared", "presented", "produced", "programmed", "published", "reduced",
+    "refactored", "reengineered", "resolved", "restructured", "revamped", "reviewed",
+    "scaled", "shipped", "simplified", "spearheaded", "standardized", "started",
+    "streamlined", "strengthened", "supervised", "supported", "tested", "trained",
+    "transformed", "unified", "upgraded", "validated", "wrote",
+}
