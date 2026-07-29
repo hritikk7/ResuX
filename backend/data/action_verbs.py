@@ -14,5 +14,4 @@ ACTION_VERBS: set[str] = {
     "refactored", "reengineered", "resolved", "restructured", "revamped", "reviewed",
     "scaled", "shipped", "simplified", "spearheaded", "standardized", "started",
     "streamlined", "strengthened", "supervised", "supported", "tested", "trained",
-    "transformed", "unified", "upgraded", "validated", "wrote",
 }
