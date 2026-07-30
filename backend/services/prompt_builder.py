@@ -45,22 +45,39 @@ def build_skill_matching_prompt(resume_text: str, job_description: str):
     \"\"\"
     {job_description}
     \"\"\"
+
+    Instructions — follow in order:
+
+    1. Read ONLY the Job Description above. List every distinct skill, tool,
+       technology, or competency it requires, ignoring the Resume for now.
+
+       Rule for compound requirements: if the JD lists multiple technologies
+       joined by "or" as alternatives for one capability (e.g. "Kafka,
+       Kinesis, or Pub/Sub"), treat this as ONE entry with a short
+       canonical name (e.g. "Event-driven streaming systems"), not one
+       per technology.
+
+       CRITICAL: every entry must come from the Job Description text only.
+       Never include something because it appears in the Resume.
+
+       Format each skill as a short tag, 1-4 words, not a copied sentence
+       fragment. Example — JD says "Experience with observability platforms
+       such as Datadog, Splunk, Prometheus, Grafana, or ELK" → correct entry
+       is "Observability platforms", not the full clause.
+
+    2. Now read the Resume below and, using ONLY the fixed list from step 1
+       (do not add, split, or reword any item), decide which are
+       demonstrated and which are not.
+
     Resume:
     \"\"\"
     {resume_text}
     \"\"\"
-    Instructions:
-    1. Identify all key technical skills, tools, frameworks, concepts, and soft skills required in the Job Description.
-    2. Determine which of those identified job skills are present or demonstrated in the Resume.
-    3. Determine which of those identified job skills are missing from the Resume.
-    Rules:
-    - Ensure every skill in `match_skills` and `missing_skills` is present in `job_skills`.
-    - Do not make assumptions; if a skill is not clearly mentioned or demonstrated in the resume, classify it as missing.
-    - Respond with ONLY valid JSON. Do not include markdown formatting (like ```json), code blocks, or any introductory/concluding text.
-    Output Schema:
+
+    Output ONLY JSON matching the schema. No markdown, no commentary.
     {{
-      "job_skills": ["list", "of", "all", "extracted", "job", "skills"],
-      "match_skills": ["list", "of", "skills", "found", "in", "resume"],
-      "missing_skills": ["list", "of", "skills", "not", "found", "in", "resume"]
+      "job_skills": ["short canonical tags extracted in step 1"],
+      "match_skills": ["subset of job_skills found in the resume"],
+      "missing_skills": ["subset of job_skills not found in the resume"]
     }}
     """
