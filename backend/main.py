@@ -15,6 +15,7 @@ from providers.embeddings.voyage import VoyageEmbeddingProvider
 from providers.llm import get_llm_provider
 from services.similarity_service import cosine_similarity
 from services.skills_service import match_skills_with_llm
+from services.cover_letter_service import generate_cover_letter
 from api.deps import get_current_user
 from db.analyses_repository import (
     get_analyses_for_user,
@@ -313,12 +314,46 @@ async def get_analysis(analysis_id: str, user_id: str = Depends(get_current_user
     try:
         row = await asyncio.to_thread(get_analysis_by_id, user_id, analysis_id)
     except Exception:
-        logging.exception("Failed to load analysis %s for user %s", analysis_id, user_id)
+        logging.exception(
+            "Failed to load analysis %s for user %s", analysis_id, user_id
+        )
         raise HTTPException(status_code=503, detail="Could not load analysis")
 
     if row is None:
         raise HTTPException(status_code=404, detail="Analysis not found")
     return row
+
+
+@app.post("/cover_letter")
+async def cover_letter(
+    resume: UploadFile = File(...),
+    job_description: str = Form(...),
+    user_id: str = Depends(get_current_user),
+):
+    # 1. Parse the resume to extract the text
+    parsed_resume = await parse_resume(resume)
+    if isinstance(parsed_resume, ResumeParseError):
+        raise HTTPException(status_code=400, detail=parsed_resume.message)
+
+    # 2. Get the configured LLM provider
+    provider = get_llm_provider()
+
+    # 3. Call the cover letter generator and await the result
+    result = await generate_cover_letter(
+        resume_text=parsed_resume.raw_text,
+        job_description=job_description,
+        llm_provider=provider,
+    )
+
+    # 4. Handle failure (e.g. if the LLM fails validation twice)
+    if result is None:
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to generate a valid cover letter. Please try again.",
+        )
+
+    # 5. Return the JSON object directly
+    return result
 
 
 if __name__ == "__main__":

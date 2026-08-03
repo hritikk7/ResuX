@@ -81,3 +81,33 @@ def build_skill_matching_prompt(resume_text: str, job_description: str):
       "missing_skills": ["subset of job_skills not found in the resume"]
     }}
     """
+
+
+def build_cover_letter_prompt(resume_text: str, job_description: str) -> str:
+    return f"""
+    You are an expert career coach and professional writer. Write a tailored, persuasive, and professional cover letter for a candidate applying to a job. Use the candidate's Resume and the Job Description provided below.
+
+    Job Description:
+    \"\"\"
+    {job_description}
+    \"\"\"
+
+    Candidate Resume:
+    \"\"\"
+    {resume_text}
+    \"\"\"
+
+    Instructions and Guidelines:
+    1. Tone & Style: Write in a professional, confident, and engaging tone. Avoid generic clichés, overly formal filler (e.g., "I am writing to express my interest in..."), or robotic phrasing.
+    2. Hook: Start with a strong, custom opening hook that immediately highlights the candidate's alignment with the role or company.
+    3. Body Paragraphs:
+       - Match the candidate's top 2-3 relevant accomplishments or skills from their resume to the core requirements of the job description.
+       - Highlight concrete achievements and impact (using metrics or outcomes if available in the resume).
+    4. Call to Action: End with a professional concluding statement expressing enthusiasm for the role and offering to discuss how their background fits the company's goals.
+    5. Formatting: Use placeholders like [Date], [Hiring Manager's Name], [Company Name], and [Your Name] for any missing contact details or specific names. Keep the letter concise and structured (around 250-350 words).
+
+    Output ONLY a valid JSON object matching this schema. Do not wrap in markdown fences (such as ```json), and do not include any commentary.
+    {{
+      "cover_letter": "The full text of the generated cover letter, using appropriate newline characters (\\n) for paragraph breaks."
+    }}
+    """

@@ -11,3 +11,7 @@ class SkillMatchLLMOutput(BaseModel):
     job_skills: list[str]
     missing_skills: list[str]
     match_skills: list[str]
+
+
+class CoverLetterLLMOutput(BaseModel):
+    cover_letter: str
